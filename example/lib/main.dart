@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:calendar_appbar/calendar_appbar.dart';
+import 'package:cx_calendar_appbar/calendar_appbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -43,10 +43,11 @@ class _MyHomePageState extends State<MyHomePage> {
         firstDate: DateTime.now().subtract(Duration(days: 30)),
         initialDate: DateTime.now(),
         backButton: false,
+        weekOfYearLabel: "KW",
         events: List.generate(
-            100,
-            (index) => DateTime.now().add(Duration(days: 30))
-                .subtract(Duration(days: index * random.nextInt(5)))),
+          100,
+          (index) => DateTime.now().add(Duration(days: 30)).subtract(Duration(days: index * random.nextInt(5))),
+        ),
       ),
       body: Center(child: Text(selectedDate.toString())),
     );

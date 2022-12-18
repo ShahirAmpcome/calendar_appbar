@@ -46,6 +46,9 @@ class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
   ///definiton of the calendar language
   final String? locale;
 
+  /// week of year label
+  final String weekOfYearLabel;
+
   ///initialization of [CalendarAppBar]
   CalendarAppBar({
     Key? key,
@@ -61,6 +64,7 @@ class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.black,
     this.padding,
     this.locale,
+    this.weekOfYearLabel = "",
   }) : super(
           key: key,
         ) {
@@ -163,39 +167,43 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      DateTime referentialDate = DateTime.parse("${widget.initialDate.toString().split(" ").first} 12:00:00.000");
+      await selectDate(widget.initialDate ?? DateTime.now());
+    });
+  }
 
-      int? oldPosition;
-      late int positionDifference;
+  selectDate(DateTime newSelectedDate) async {
+    int? oldPosition;
+    late int positionDifference;
 
-      setState(() {
-        oldPosition = position;
-        positionDifference = -((referentialDate.difference(referenceDate).inHours / 24).round());
-      });
+    DateTime formattedDate = DateTime.parse("${newSelectedDate.toString().split(" ").first} 12:00:00.000");
 
-      double offset = scrollController.offset;
-      double widthUnit = MediaQuery.of(context).size.width / 5 - 4.0;
+    setState(() {
+      oldPosition = position;
+      positionDifference = -((formattedDate.difference(referenceDate).inHours / 24).round());
+    });
 
-      double maxOffset = scrollController.position.maxScrollExtent;
-      double minOffset = 0.0;
-      double newOffset = (offset + (widthUnit * (positionDifference - 4)));
+    double offset = scrollController.offset;
+    double widthUnit = MediaQuery.of(context).size.width / 5 - 4.0;
 
-      ///if current offset is out of bounderies set it to maximal or minimal offset
-      if (newOffset > maxOffset)
-        newOffset = maxOffset;
-      else if (newOffset < minOffset)
-        newOffset = minOffset;
+    double maxOffset = scrollController.position.maxScrollExtent;
+    double minOffset = 0.0;
+    double newOffset = (offset + (widthUnit * (positionDifference)));
 
-      await scrollController.animateTo(
-        newOffset,
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-      );
+    ///if current offset is out of bounderies set it to maximal or minimal offset
+    if (newOffset > maxOffset)
+      newOffset = maxOffset;
+    else if (newOffset < minOffset) newOffset = minOffset;
 
-      setState(() {
-        referenceDate = selectedDate;
-        position = oldPosition! + positionDifference;
-      });
+    await scrollController.animateTo(
+      newOffset,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+
+    setState(() {
+      selectedDate = formattedDate;
+      referenceDate = selectedDate;
+      position = oldPosition! + positionDifference;
     });
   }
 
@@ -216,8 +224,10 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
     DateTime basicDate = DateTime.parse("${first.toString().split(" ").first} 12:00:00.000");
 
     ///List of all dates that will be shown in scroller
-    List<DateTime> pastDates =
-        List.generate((last.difference(first).inHours / 24).round(), (index) => basicDate.add(Duration(days: index)));
+    List<DateTime> pastDates = List.generate(
+      (last.difference(first).inHours / 24).round(),
+      (index) => basicDate.add(Duration(days: index)),
+    );
 
     ///Sorting dates in descending order
     pastDates.sort((b, a) => a.compareTo(b));
@@ -280,6 +290,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
 
                 ///set selectedDate on previous date
                 selectedDate = selectedDate.subtract(Duration(days: 1));
+                referenceDate = selectedDate;
 
                 ///adding hapric feedback in the future
                 HapticFeedback.lightImpact();
@@ -295,6 +306,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
 
                 ///set selectedDate on previous date
                 selectedDate = selectedDate.add(Duration(days: 1));
+                referenceDate = selectedDate;
 
                 ///adding hapric feedback in the future
                 HapticFeedback.lightImpact();
@@ -387,15 +399,23 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                                       ),
                                 SizedBox(height: 10),
 
-                                ///date number
+                                Text(
+                                  getWeekOfYearLabel(date, index == pastDates.length - 1, this.widget.weekOfYearLabel),
+                                  style: TextStyle(
+                                    color: isSelected ? accent : white.withOpacity(0.6),
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+
                                 Text(
                                   DateFormat("dd").format(date),
                                   style: TextStyle(
                                       fontSize: 22.0, color: isSelected ? accent : white.withOpacity(0.6), fontWeight: FontWeight.w500),
                                 ),
-                                SizedBox(height: 5),
+                                SizedBox(height: 4),
 
-                                ///day of the week
                                 Text(
                                   DateFormat.E(Locale(_locale).toString()).format(date),
                                   style: TextStyle(
@@ -545,12 +565,12 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            GestureDetector(
+                            TextButton(
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   color: white,
                                 ),
-                                onTap: () => Navigator.pop(context)),
+                                onPressed: () => Navigator.pop(context)),
                             GestureDetector(
                               onTap: () => fullCalendar ? showFullCalendar(_locale) : null,
                               child: Row(
@@ -570,23 +590,29 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                           ],
                         )
                       : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            GestureDetector(
-                              onTap: () => fullCalendar ? showFullCalendar(_locale) : null,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    DateFormat.yMMMM(Locale(_locale).toString()).format(selectedDate),
-                                    style: TextStyle(fontSize: 20.0, color: white, fontWeight: FontWeight.w400),
-                                  ),
-                                  SizedBox(width: 10.0),
-                                  Icon(
+                            Text(
+                              DateFormat.yMMMM(Locale(_locale).toString()).format(selectedDate),
+                              style: TextStyle(fontSize: 20.0, color: white, fontWeight: FontWeight.w400),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () => fullCalendar ? showFullCalendar(_locale) : null,
+                                  icon: Icon(
                                     Icons.calendar_month_outlined,
                                     color: white,
                                   ),
-                                ],
-                              ),
+                                ),
+                                IconButton(
+                                  onPressed: () => selectDate(DateTime.now()),
+                                  icon: Icon(
+                                    Icons.today_outlined,
+                                    color: white,
+                                  ),
+                                )
+                              ],
                             ),
                           ],
                         ),
@@ -601,6 +627,37 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
         ],
       ),
     );
+  }
+
+  int numOfWeeks(int year) {
+    DateTime dec28 = DateTime(year, 12, 28);
+    int dayOfDec28 = int.parse(DateFormat("D").format(dec28));
+    return ((dayOfDec28 - dec28.weekday + 10) / 7).floor();
+  }
+
+  String weekNumber(DateTime date) {
+    int dayOfYear = int.parse(DateFormat("D").format(date));
+    int weekOfYear = ((dayOfYear - date.weekday + 10) / 7).floor();
+    if (weekOfYear < 1) {
+      weekOfYear = numOfWeeks(date.year - 1);
+    } else if (weekOfYear > numOfWeeks(date.year)) {
+      weekOfYear = 1;
+    }
+    return weekOfYear.toString();
+  }
+
+  String getWeekOfYearLabel(DateTime date, bool firstDate, String weekOfYearLabel) {
+    if (firstDate) {
+      return weekOfYearLabel + " " + weekNumber(date);
+    } else {
+      var weekOfYearForDate = weekNumber(date);
+      var weekOfYearForPreviousDate = weekNumber(date.subtract(Duration(days: 1)));
+      if (weekOfYearForDate != weekOfYearForPreviousDate) {
+        return weekOfYearLabel + " " + weekOfYearForDate;
+      } else {
+        return "";
+      }
+    }
   }
 }
 
