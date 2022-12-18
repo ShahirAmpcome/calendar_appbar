@@ -356,7 +356,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                           child: Container(
                             height: 120.0,
                             width: MediaQuery.of(context).size.width / 5 - 4.0,
@@ -384,31 +384,16 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ///indicators of event on specific date
-                                datesWithEnteries.contains(date.toString().split(" ").first)
-                                    ? Container(
-                                        width: 5.0,
-                                        height: 5.0,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: isSelected ? accent : white.withOpacity(0.6),
-                                        ),
-                                      )
-                                    : SizedBox(
-                                        height: 5.0,
-                                      ),
-                                SizedBox(height: 5),
-
+                                if (datesWithEnteries.length > 0) _buildEventWidget(date: date, isSelected: isSelected),
                                 Text(
                                   getWeekOfYearLabel(date, index == pastDates.length - 1, this.widget.weekOfYearLabel),
                                   style: TextStyle(
                                     color: isSelected ? accent : white.withOpacity(0.6),
-                                    fontSize: 12.0,
+                                    fontSize: 10.0,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                                SizedBox(height: 3),
-
+                                SizedBox(height: 5),
                                 Text(
                                   DateFormat("dd").format(date),
                                   style: TextStyle(
@@ -417,8 +402,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                SizedBox(height: 3),
-
+                                SizedBox(height: 5),
                                 Text(
                                   DateFormat.E(Locale(_locale).toString()).format(date),
                                   style: TextStyle(
@@ -664,6 +648,26 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
         return "";
       }
     }
+  }
+
+  Widget _buildEventWidget({required DateTime date, required bool isSelected}) {
+    return Column(
+      children: [
+        datesWithEnteries.contains(date.toString().split(" ").first)
+            ? Container(
+                width: 5.0,
+                height: 5.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected ? accent : white.withOpacity(0.6),
+                ),
+              )
+            : SizedBox(
+                height: 5.0,
+              ),
+        SizedBox(height: 5),
+      ],
+    );
   }
 }
 
