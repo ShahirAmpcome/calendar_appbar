@@ -355,64 +355,61 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                       width: MediaQuery.of(context).size.width / 5 - 4.0,
                       child: Align(
                         alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                          child: Container(
-                            height: 120.0,
-                            width: MediaQuery.of(context).size.width / 5 - 4.0,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: isSelected ? white : null,
-                              boxShadow: [
-                                isSelected
-                                    ? BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        spreadRadius: 1,
-                                        blurRadius: 10,
-                                        offset: Offset(0, 3),
-                                      )
-                                    : BoxShadow(
-                                        color: Colors.grey.withOpacity(0.0),
-                                        spreadRadius: 5,
-                                        blurRadius: 20,
-                                        offset: Offset(0, 3),
-                                      )
-                              ],
-                            ),
+                        child: Container(
+                          height: 120.0,
+                          width: MediaQuery.of(context).size.width / 5 - 4.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            color: isSelected ? white : null,
+                            boxShadow: [
+                              isSelected
+                                  ? BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 10,
+                                      offset: Offset(0, 3),
+                                    )
+                                  : BoxShadow(
+                                      color: Colors.grey.withOpacity(0.0),
+                                      spreadRadius: 5,
+                                      blurRadius: 20,
+                                      offset: Offset(0, 3),
+                                    )
+                            ],
+                          ),
 
-                            ///definition of content inside of calendar card
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (datesWithEnteries.length > 0) _buildEventWidget(date: date, isSelected: isSelected),
-                                Text(
-                                  getWeekOfYearLabel(date, index == pastDates.length - 1, this.widget.weekOfYearLabel),
-                                  style: TextStyle(
-                                    color: isSelected ? accent : white.withOpacity(0.6),
-                                    fontSize: 10.0,
-                                    fontWeight: FontWeight.w400,
-                                  ),
+                          ///definition of content inside of calendar card
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (datesWithEnteries.length > 0) _buildEventWidget(date: date, isSelected: isSelected),
+                              Text(
+                                getWeekOfYearLabel(date, index == pastDates.length - 1, this.widget.weekOfYearLabel),
+                                style: TextStyle(
+                                  color: isSelected ? accent : white.withOpacity(0.6),
+                                  fontSize: 10.0,
+                                  fontWeight: FontWeight.w400,
                                 ),
-                                SizedBox(height: 5),
-                                Text(
-                                  DateFormat("dd").format(date),
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    color: isSelected ? accent : white.withOpacity(0.6),
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              ),
+                              SizedBox(height: 7),
+                              Text(
+                                DateFormat("dd").format(date),
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: isSelected ? accent : white.withOpacity(0.6),
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                SizedBox(height: 5),
-                                Text(
-                                  DateFormat.E(Locale(_locale).toString()).format(date),
-                                  style: TextStyle(
-                                    fontSize: 12.0,
-                                    color: isSelected ? accent : white.withOpacity(0.6),
-                                    fontWeight: FontWeight.w400,
-                                  ),
+                              ),
+                              SizedBox(height: 7),
+                              Text(
+                                DateFormat.E(Locale(_locale).toString()).format(date),
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: isSelected ? accent : white.withOpacity(0.6),
+                                  fontWeight: FontWeight.w400,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
