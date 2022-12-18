@@ -397,7 +397,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                                     : SizedBox(
                                         height: 5.0,
                                       ),
-                                SizedBox(height: 10),
+                                SizedBox(height: 5),
 
                                 Text(
                                   getWeekOfYearLabel(date, index == pastDates.length - 1, this.widget.weekOfYearLabel),
@@ -407,19 +407,25 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                SizedBox(height: 3),
 
                                 Text(
                                   DateFormat("dd").format(date),
                                   style: TextStyle(
-                                      fontSize: 22.0, color: isSelected ? accent : white.withOpacity(0.6), fontWeight: FontWeight.w500),
+                                    fontSize: 20.0,
+                                    color: isSelected ? accent : white.withOpacity(0.6),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                                SizedBox(height: 4),
+                                SizedBox(height: 3),
 
                                 Text(
                                   DateFormat.E(Locale(_locale).toString()).format(date),
                                   style: TextStyle(
-                                      fontSize: 12.0, color: isSelected ? accent : white.withOpacity(0.6), fontWeight: FontWeight.w400),
+                                    fontSize: 12.0,
+                                    color: isSelected ? accent : white.withOpacity(0.6),
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
                               ],
                             ),
@@ -565,8 +571,8 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            TextButton(
-                                child: Icon(
+                            IconButton(
+                                icon: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   color: white,
                                 ),
