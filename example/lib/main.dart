@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CalendarAppBar(
+        width: MediaQuery.of(context).size.width,
         onDateChanged: (value) => setState(() => selectedDate = value),
         lastDate: DateTime.now().add(Duration(days: 30)),
         firstDate: DateTime.now().subtract(Duration(days: 30)),

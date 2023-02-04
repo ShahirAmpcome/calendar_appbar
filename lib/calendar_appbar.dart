@@ -3,13 +3,15 @@ library calendar_appbar;
 ///adding necesarry packages
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 ///Code starts here
 class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
+  ///appbar width
+  final double width;
+
   ///accent color of UI
   final Color? accent;
 
@@ -52,6 +54,7 @@ class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
   ///initialization of [CalendarAppBar]
   CalendarAppBar({
     Key? key,
+    required this.width,
     required this.lastDate,
     this.firstDate,
     required this.onDateChanged,
@@ -116,12 +119,15 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
   ///[backButton] shows BackButton in set to true
   late bool backButton;
 
+  late ScrollController scrollController;
+
   ///[locale] is used for current local language of the library
   String get _locale => widget.locale ?? 'en';
 
   ///intializing values of atributes which were not defined by user
   @override
   void initState() {
+    super.initState();
     setState(() {
       ///initializing accent
       accent = widget.accent ?? Color(0xFF0039D9);
@@ -144,14 +150,14 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
       ///initializing fullCalendar
       fullCalendar = widget.fullCalendar ?? true;
 
+      ///initializing language
+      initializeDateFormatting(_locale);
+
       ///initializing firstDate
       selectedDate = widget.lastDate;
 
       ///initializing referenceDate
       referenceDate = selectedDate;
-
-      ///initializing language
-      initializeDateFormatting(_locale);
 
       ///initializing position to 1
       position = 1;
@@ -164,11 +170,33 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
         datesWithEnteries.add(element.toString().split(" ").first);
       }
     }
-    super.initState();
 
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await selectDate(widget.initialDate ?? DateTime.now());
+    double initialOffset = computeInitialDateSelectorOffset(DateTime.now());
+    scrollController = ScrollController(initialScrollOffset: initialOffset);
+  }
+
+  computeInitialDateSelectorOffset(DateTime initialDate) {
+    int? oldPosition;
+    late int positionDifference;
+
+    DateTime formattedDate = DateTime.parse("${initialDate.toString().split(" ").first} 12:00:00.000");
+
+    setState(() {
+      oldPosition = position;
+      positionDifference = -((formattedDate.difference(referenceDate).inHours / 24).round());
     });
+
+    double offset = 0.0;
+    double widthUnit = widget.width / 5 - 4.0;
+    double newOffset = (offset + (widthUnit * (positionDifference)));
+
+    setState(() {
+      selectedDate = formattedDate;
+      referenceDate = selectedDate;
+      position = oldPosition! + positionDifference;
+    });
+
+    return newOffset;
   }
 
   selectDate(DateTime newSelectedDate) async {
@@ -183,20 +211,22 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
     });
 
     double offset = scrollController.offset;
-    double widthUnit = MediaQuery.of(context).size.width / 5 - 4.0;
+    double widthUnit = widget.width / 5 - 4.0;
 
     double maxOffset = scrollController.position.maxScrollExtent;
     double minOffset = 0.0;
     double newOffset = (offset + (widthUnit * (positionDifference)));
 
     ///if current offset is out of bounderies set it to maximal or minimal offset
-    if (newOffset > maxOffset)
+    if (newOffset > maxOffset) {
       newOffset = maxOffset;
-    else if (newOffset < minOffset) newOffset = minOffset;
+    } else if (newOffset < minOffset) {
+      newOffset = minOffset;
+    }
 
     await scrollController.animateTo(
       newOffset,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
 
@@ -206,9 +236,6 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
       position = oldPosition! + positionDifference;
     });
   }
-
-  ///definition of scroll controller
-  ScrollController scrollController = new ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -263,8 +290,7 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
               ///so all five date cards are fully visible on the screen
               if (offset > 0) {
                 //animated scroll
-                scrollController.animateTo((offset / widthUnit).round() * (widthUnit),
-                    duration: Duration(milliseconds: 100), curve: Curves.easeInOut);
+                scrollController.animateTo((offset / widthUnit).round() * (widthUnit), duration: Duration(milliseconds: 100), curve: Curves.easeInOut);
               }
 
               ///compare last last selected date with curren selected date
@@ -762,8 +788,8 @@ class _FullCalendarState extends State<FullCalendar> {
     List<String> partsEnd = endDate.toString().split(" ").first.split("-");
 
     ///parsing [partsStart] List of Strings to DateTime
-    DateTime lastDate = DateTime.parse("${partsEnd.first}-${(int.parse(partsEnd[1]) + 1).toString().padLeft(2, '0')}-01 23:00:00.000")
-        .subtract(Duration(days: 1));
+    DateTime lastDate =
+        DateTime.parse("${partsEnd.first}-${(int.parse(partsEnd[1]) + 1).toString().padLeft(2, '0')}-01 23:00:00.000").subtract(Duration(days: 1));
 
     ///calculating the height based of the screen height
     double width = MediaQuery.of(context).size.width - (2 * widget.padding!);
