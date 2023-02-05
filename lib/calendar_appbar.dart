@@ -318,6 +318,8 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                 selectedDate = selectedDate.subtract(Duration(days: 1));
                 referenceDate = selectedDate;
 
+                widget.onDateChanged(selectedDate);
+
                 ///adding hapric feedback in the future
                 HapticFeedback.lightImpact();
               });
@@ -333,6 +335,8 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
                 ///set selectedDate on previous date
                 selectedDate = selectedDate.add(Duration(days: 1));
                 referenceDate = selectedDate;
+
+                widget.onDateChanged(selectedDate);
 
                 ///adding hapric feedback in the future
                 HapticFeedback.lightImpact();
