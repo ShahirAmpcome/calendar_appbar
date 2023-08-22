@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 ///Code starts here
 class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -831,13 +832,17 @@ class _FullCalendarState extends State<FullCalendar> {
 
       ///sort months
       months.sort((b, a) => a!.compareTo(b!));
+
+      final int initialIndex = months.indexWhere((month) => month?.month == widget.selectedDate?.month && month?.year == widget.selectedDate?.year);
+
       return Padding(
         padding: EdgeInsets.fromLTRB(widget.padding!, 40.0, widget.padding!, 0.0),
         child: Container(
           ///scrolling of calendar
-          child: ListView.builder(
-              physics: BouncingScrollPhysics(),
+          child: ScrollablePositionedList.builder(
+              initialScrollIndex: initialIndex != -1 ? initialIndex - 1 : 0,
               reverse: true,
+              physics: BouncingScrollPhysics(),
               itemCount: months.length,
               itemBuilder: (context, index) {
                 DateTime? date = months[index];
